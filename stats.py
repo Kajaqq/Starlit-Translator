@@ -1,53 +1,47 @@
 import csv
-import glob
-import matplotlib.pyplot as plt
+
+import tools
 
 
 def count_translated_str(csv_file_path):
     filled_count = 0
     empty_count = 0
-
+    total = tools.len_csv(csv_file_path)
     with open(csv_file_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if row['translatedstr']:  # Check if 'translatedstr' is not empty
+            translated_row = row['translatedstr'] if 'translatedstr' in row else row['target']
+            if translated_row:
                 filled_count += 1
             else:
                 empty_count += 1
 
-    return filled_count, empty_count
+    return filled_count, empty_count, total
 
-def analyze_multiple_files(file_pattern):
-    """
-    Analyzes multiple CSV files, calculates percentages of filled 'translatedstr', and visualizes them.
 
-    Args:
-        file_pattern (str): A pattern to match CSV files (e.g., '*.csv').
-    """
-    results = []
-    for file_path in glob.glob(file_pattern):
-        filled, empty = count_translated_str(file_path)
+def check_translation_percentage(input_csv, exclusion_percentage=None, exclusion_name=None):
+    results = {}
+    file_list = tools.glob_and_exclude(input_csv, exclusion_percentage, exclusion_name)
+    for file_path in file_list:
+        filled, empty, total_lines = count_translated_str(file_path)
         total = filled + empty
         if total > 0:  # Avoid division by zero if a file is entirely empty
             percentage = (filled / total) * 100
         else:
-            percentage = 0  # Or handle it as you see fit
-        results.append((file_path, percentage))
+            percentage = 0
+            print(f"Warning: Total is zero for {file_path}. Cannot calculate percentage.")
+        results[file_path] = percentage
+        if total != total_lines:
+            print(f'Line number mismatch. Something is very wrong.')
 
-    # Sorting for clearer visualization (optional)
-    results.sort(key=lambda x: x[1])  # Sort by percentage
+    sorted_results = dict(
+        sorted(results.items(), key=lambda item: item[1], reverse=True)
+    )
 
-    # Visualization
-    file_names, percentages = zip(*results)
-    plt.figure(figsize=(10, 6))  # Adjust figure size as needed
-    plt.bar(file_names, percentages)
-    plt.xlabel("File Names")
-    plt.ylabel("Percentage of Filled 'translatedstr'")
-    plt.title("Comparison of 'translatedstr' Completion Rates")
-    plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for readability
-    plt.tight_layout()
-    plt.show()
+    return sorted_results
 
 
-# Example usage (replace with your file pattern)
-analyze_multiple_files('Idol/*.csv')
+if __name__ == "__main__":
+    fix_list = check_translation_percentage('pakchunk99-EngPatch/Commu')
+    for csv_file, csv_per in fix_list.items():
+        print(csv_file + '\n' + str(csv_per))

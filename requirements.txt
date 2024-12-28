@@ -1,0 +1,3 @@
+google-cloud-aiplatform>=1.38
+google-generativeai>=0.8.3
+pandas
