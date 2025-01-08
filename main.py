@@ -1,4 +1,5 @@
 import os
+import sys
 from time import sleep
 
 import google.generativeai as genai
@@ -13,22 +14,21 @@ from gemini_csv import translate_text
 from keys_to_the_castle import api_key
 
 # Model settings
-genai.configure(api_key=api_key)  # import from keys_to_the_castle.py -> generate on the AI Studio site.
-model_name = "gemini-2.0-flash-exp"  # You don't generally want to change this except if you know what you are doing,
-                                     # 2.0-flash-thinking generally performs worse
-
+genai.configure(api_key=api_key)     # import from keys_to_the_castle.py -> generate on the AI Studio site.
+model_name = "gemini-2.0-flash-exp"  # You don't generally want to change this unless you know what you are doing,
+                                     # 2.0-flash-thinking generally performs worse as of January 2025
 generation_config = {
-    # Temperature corresponds the model 'creativity',
+    # Temperature corresponds to the model 'creativity',
     # For Translation tasks it's best to use a value between 0.00 and 0.30
     "temperature": 0.15,
     # This is the maximum allowed number, we handle this by chunking the lines sent to the model
-    # so that the response never surpasses that point.
+    # so that the response never surpasses this point.
     "max_output_tokens": 8192,
     # Other possible option is 'text/json', but that would require a rewrite
     # of parsing the output from the model.
     "response_mime_type": "text/plain",
 }
-# noinspection PyTypeChecker
+
 model = genai.GenerativeModel(
     model_name=model_name,
     generation_config=generation_config,
@@ -36,7 +36,7 @@ model = genai.GenerativeModel(
 )
 
 
-def verify_translation(csv_file, percentage):
+def verify_translation(csv_file: str, percentage: int) -> int:
     old_percentage = percentage
     translation_percentage = stats.check_translation_percentage(csv_file)
     new_percentage = translation_percentage[csv_file]
@@ -45,7 +45,7 @@ def verify_translation(csv_file, percentage):
     if new_percentage == 100:
         print('Translation complete, proceeding.')
     if new_percentage < old_percentage:
-        print("Translation has regressed.\nSomething went really wrong.")
+        print("Translation has regressed.\nSomething went really wrong.\nRemoving Result.")
     if old_percentage < new_percentage < 100:
         print('Translation partially completed.')
     return new_percentage
@@ -53,13 +53,13 @@ def verify_translation(csv_file, percentage):
 
 def translate_csv(files, pass_nr=1, pass_rate=100):
     partial_files = []
-    files = tools.glob_and_exclude(files) if type(files) is not list else files
+    files = tools.glob_and_exclude(files,exclusion_percentage=100,exclusion_name='_eng') if type(files) is not list else files # Exclude files that are already translated
     for filename in files:
         # Obtain needed data
         file, extension = os.path.splitext(filename)
         file_dict = csv_processing.preprocess_csv_to_dict(filename, pass_nr)
         file_tokens = tokenizer.count_tokens(file_dict)
-        translation_state = stats.check_translation_percentage(filename)[filename]
+        translation_state = stats.check_translation_percentage(filename)[filename] # returns a list so we check the given file.
         file_chunk_size = 100 # This is how much pairs we send to the model at once
         time_estimate = tokenizer.estimate_time(file_tokens)
         ## This is a dynamic chunk size calculator,
@@ -82,7 +82,7 @@ def translate_csv(files, pass_nr=1, pass_rate=100):
             partial_files.append(output_path)
             translate_csv(partial_files, pass_nr=2)
         if pass_nr > 1:
-            if trans_percent <= translation_state: #If after the second time the translation doesn't improve, remove the duplicate file.
+            if trans_percent <= translation_state: # If after the second time the translation doesn't improve, remove the new file.
                 print('=' * 24)
                 print(f"PARTIAL TRANSLATION FIX FAILED FOR {filename}")
                 print('=' * 24)
@@ -96,4 +96,6 @@ def translate_line(line):
     translated_line = translate_text(line, model, 1, file_tokens)
     return translated_line
 
-translate_csv('sample')
+if __name__ == '__main__':
+    csv_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample'
+    translate_csv(csv_dir)

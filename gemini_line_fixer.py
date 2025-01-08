@@ -13,15 +13,15 @@ from keys_to_the_castle import api_key
 This is a special version of main.py dedicated to minimizing the problem of text overflowing.
 The optimal method I found is 3 passes per file. 
 It can minimize the overflow from 25% down to even 2% by line-breaking and rewording.
-The downsize is that models have problems with counting sometimes, and instead of 2 lines + reword, we get 3.
+The downsize is that models have problems with counting sometimes, and instead of 2 reworded lines, we get 3.
 But that can be easily detected and fixed in human proofread.
 """
 
 
 # Model settings
-genai.configure(api_key=api_key)  # import from keys_to_the_castle.py -> generate on the AI Studio site.
+genai.configure(api_key=api_key)     # import from keys_to_the_castle.py -> generate on the AI Studio site.
 model_name = "gemini-2.0-flash-exp"  # You don't generally want to change this except if you know what you are doing,
-# 2.0-flash-thinking generally performs worse
+                                     # 2.0-flash-thinking generally performs worse
 
 generation_config = {
     # Temperature corresponds the model 'creativity',
@@ -34,7 +34,8 @@ generation_config = {
     # of parsing the output from the model.
     "response_mime_type": "text/plain",
 }
-# noinspection PyTypeChecker
+
+
 model = genai.GenerativeModel(
     model_name=model_name,
     generation_config=generation_config,
@@ -86,7 +87,6 @@ def process_csv(files, pass_id=3, passes=3):
             print("The first chunk should take about 30-40 seconds to complete.")
             print(f'Estimated time for the whole file: {time_estimate}')
             translated_file = translate_text(file_dict, model, file_chunk_size, file_tokens)
-
             output_path = f'{file}_fix{p}{extension}' if p ==1 else f'{file[:-1]}{p}{extension}'
             csv_processing.postprocess_dict_to_csv(filename, output_path, file_dict, translated_file)
             filename = output_path

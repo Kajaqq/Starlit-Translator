@@ -1,7 +1,8 @@
-$scriptPath = "pakchunk99-EngPatch"
-$fileNames = Get-ChildItem -Path $scriptPath -Recurse -Include *fix.csv
+$scriptPath = ""
+$suffixToRename = "fix"
+$fileNames = Get-ChildItem -Path $scriptPath -Recurse -Include *$suffixToRename.csv
 foreach($file in $fileNames) {
-    $newName = $file.FullName -replace "_fix", ""
+    $newName = $file.FullName -replace "_$suffixToRename", ""
     Move-Item -Force $file.FullName $newName
 }
 foreach($file in $fileNames) {

@@ -3,7 +3,7 @@ import csv
 import tools
 
 
-def count_translated_str(csv_file_path):
+def count_translated_str(csv_file_path: str) -> object:
     filled_count = 0
     empty_count = 0
     total = tools.len_csv(csv_file_path)

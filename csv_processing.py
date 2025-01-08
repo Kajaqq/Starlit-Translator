@@ -21,6 +21,11 @@ and replace the column next to it with the translated version.
 
  '''
 
+replace_dict = {
+    'Kokohaku':'Kohaku',
+    'Shiroha':'Kohaku',
+}
+
 def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
     data_dict = {}
     char_widths = []
@@ -63,12 +68,19 @@ def handle_case_3(text_to_check, char_widths):
         line_width_list.append(line_width)
     return line_nr_check, line_width_list
 
-def fix_common_mistakes():
-    # TODO: Add auto replacing things like Kokohaku
-    pass
+def fix_common_mistakes(en_dict: dict, replace_list=None):
+    if replace_list is None:
+        replace_list = replace_dict
+    for replace_key, replace_value in replace_list.items():
+        for key, en_text in en_dict.items():
+            en_text_words = en_text.split()
+            if replace_key in en_text_words:
+                en_dict[key] = en_text.replace(replace_key, replace_value)
+    return en_dict
 
 
-def postprocess_dict_to_csv(csv_file_path, csv_output_path, jp_dict_data, en_dict_data):
+def postprocess_dict_to_csv(csv_file_path: str, csv_output_path: str, jp_dict_data: dict, en_dict_data:dict):
+    en_dict_data = fix_common_mistakes(en_dict_data)
     dict_data = merge_dicts(jp_dict_data, en_dict_data)
     df = pd.read_csv(csv_file_path)
     dict_data['…………'] = '…………'  # The model doesn't like multiple commas, and we strive for 100% translation
@@ -80,3 +92,5 @@ def postprocess_dict_to_csv(csv_file_path, csv_output_path, jp_dict_data, en_dic
             next_column_name = df.columns[next_column_index]
             df.loc[mask, next_column_name] = en_text
     df.to_csv(csv_output_path, index=False)
+
+print(fix_common_mistakes({'key':'i Kokohaku will'}))

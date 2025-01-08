@@ -1,6 +1,5 @@
 import csv
 import glob
-import operator
 import os
 
 import line_check
@@ -46,7 +45,7 @@ def glob_csv_files(input_csv):
     return all_csv_files
 
 
-def glob_and_exclude(directory, exclusion_percentage=100, exclusion_name='_eng.csv', op=operator.eq):
+def glob_and_exclude(directory, exclusion_percentage=100, exclusion_name='_eng.csv'):
     all_csv_files = glob_csv_files(directory)
 
     if exclusion_percentage or exclusion_name:
@@ -64,7 +63,7 @@ def glob_and_exclude(directory, exclusion_percentage=100, exclusion_name='_eng.c
             try:
                 translation_percentages = stats.check_translation_percentage(directory)
                 for csv_file, percentage in translation_percentages.items():
-                    if op(percentage, exclusion_percentage):
+                    if percentage <= exclusion_percentage:
                         exclude_files.add(csv_file)
             except Exception as e:
                 print(f"Error checking translation percentages: {e}")
@@ -74,3 +73,4 @@ def glob_and_exclude(directory, exclusion_percentage=100, exclusion_name='_eng.c
 
     else:
         return all_csv_files
+
