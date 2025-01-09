@@ -43,3 +43,12 @@ You can easily customize this project to your own needs by editing the prompt_ge
 Bear in mind that if you do not enter your own instructions the model ***WILL*** perform badly.
 
 Other places for customization are gemini_csv.py and the prompt, csv_processing.py and the CSV Columns, and tools.py for editing the common functions.
+
+## Benchmarks
+The approach shown here demonstrates a result of **~0.80** in the SOTA XCOMET-XXL Machine Translation benchmark on WMMT-2023 dataset with appropriately modified prompt. 
+
+**The same result** can be achieved while using the non-refrence version of the model - Unbabel/wmt22-cometkiwi-da
+
+    COMET quality estimation model: It receives a source sentence and the respective translation and returns a score that reflects the quality of the translation.
+    Given a source text and its translation, outputs a single score between 0 and 1 where 1 represents a perfect translation.
+
