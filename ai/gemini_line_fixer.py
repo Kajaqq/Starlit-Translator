@@ -89,5 +89,5 @@ def process_csv(files, pass_id=3, passes=3):
 
 
 if __name__ == '__main__':
-    fix_dir = sys.argv[1] if len(sys.argv) > 1 else 'pakchunk99-EngPatch-Rev3'
+    fix_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample'
     process_csv(fix_dir)
