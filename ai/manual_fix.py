@@ -1,4 +1,6 @@
 # Modules
+import sys
+
 import csv_processing
 import stats
 from main import translate_line
@@ -50,4 +52,5 @@ def manual_translate(files_list):
 
 
 if __name__ == '__main__':
-    manual_translate([''])
+    file_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample/sample1.csv'
+    manual_translate([file_dir])

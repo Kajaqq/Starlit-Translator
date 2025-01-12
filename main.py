@@ -6,12 +6,13 @@ import google.generativeai as genai
 
 # Modules
 import csv_processing
-import prompt_gen
 import stats
-import tokenizer
 import tools
-from gemini_csv import translate_text
-from keys_to_the_castle import api_key
+from ai import tokenizer, prompt_gen
+from ai.gemini_csv import translate_text
+from ai.keys_to_the_castle import api_key
+
+
 
 # Model settings
 genai.configure(api_key=api_key)     # import from keys_to_the_castle.py -> generate on the AI Studio site.
@@ -53,7 +54,7 @@ def verify_translation(csv_file: str, percentage: int) -> int:
 
 def translate_csv(files, pass_nr=1, pass_rate=100):
     partial_files = []
-    files = tools.glob_and_exclude(files,exclusion_percentage=100,exclusion_name='_eng') if type(files) is not list else files # Exclude files that are already translated
+    files = tools.glob_and_exclude(files) if type(files) is not list else files # Exclude files that are already translated
     for filename in files:
         # Obtain needed data
         file, extension = os.path.splitext(filename)
@@ -76,10 +77,10 @@ def translate_csv(files, pass_nr=1, pass_rate=100):
         print(f'Estimated time for the whole file: {time_estimate}', )
         translated_file = translate_text(file_dict, model, file_chunk_size, file_tokens) # Send the dict and start the translation
         output_path = f'{file}_eng{extension}' if pass_nr == 1 else f'{file[:-4]}_fix_eng{extension}' # Output filename, for explanation about pass_id see csv_processing.py
+        print(translated_file)
         csv_processing.postprocess_dict_to_csv(filename, output_path, file_dict, translated_file)
         trans_percent = verify_translation(output_path, translation_state) # Check the state of before and after translation
         if trans_percent < pass_rate and pass_nr == 1: # If the translation is less than pass_rate then retry one time.
-            partial_files.append(output_path)
             translate_csv(partial_files, pass_nr=2)
         if pass_nr > 1:
             if trans_percent <= translation_state: # If after the second time the translation doesn't improve, remove the new file.
@@ -88,7 +89,6 @@ def translate_csv(files, pass_nr=1, pass_rate=100):
                 print('=' * 24)
                 os.remove(output_path)
                 sleep(3)
-    return partial_files
 
 
 def translate_line(line):
@@ -97,5 +97,5 @@ def translate_line(line):
     return translated_line
 
 if __name__ == '__main__':
-    csv_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample'
+    csv_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample/'
     translate_csv(csv_dir)

@@ -2,7 +2,11 @@ import csv
 
 import pandas as pd
 
-from line_check import load_char_widths
+from overflow_check import load_char_widths
+
+from ai.keys_to_the_castle import origin_row_name,translated_row_name
+
+from tools import merge_dicts
 
 '''
 Here we preprocess and postprocess CSV files to a dict
@@ -24,6 +28,7 @@ and replace the column next to it with the translated version.
 replace_dict = {
     'Kokohaku':'Kohaku',
     'Shiroha':'Kohaku',
+    'Kokoro':'Kohaku',
 }
 
 def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
@@ -34,8 +39,8 @@ def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
     with open(csv_file_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            source = row['source']
-            translated_str = row['translatedstr'] if 'translatedstr' in row.keys() else row['target']
+            source = row[origin_row_name]
+            translated_str = row[translated_row_name] if translated_row_name in row.keys() else row['target']
             if pass_nr == 1:
                 if translated_str:
                     data_dict[source] = translated_str
@@ -50,11 +55,6 @@ def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
                 if length_check or line_nr_check:
                     data_dict[source] = translated_str
     return data_dict
-
-def merge_dicts(dict_keys, dict_values):
-    dict_keys = dict_keys.keys()
-    dict_values = dict_values.values()
-    return dict(zip(dict_keys, dict_values))
 
 def handle_case_3(text_to_check, char_widths):
     lines = text_to_check.splitlines()
@@ -86,11 +86,9 @@ def postprocess_dict_to_csv(csv_file_path: str, csv_output_path: str, jp_dict_da
     dict_data['…………'] = '…………'  # The model doesn't like multiple commas, and we strive for 100% translation
     dict_data['行ってきますっ！'] = "I'm off!"  # The model also doesn't like repeated sentences, and this one is often repeated from different idols
     for jp_text, en_text in dict_data.items():
-        mask = df['source'] == jp_text
-        next_column_index = df.columns.get_loc('source') + 1
+        mask = df[origin_row_name] == jp_text
+        next_column_index = df.columns.get_loc(origin_row_name) + 1
         if next_column_index < len(df.columns):
             next_column_name = df.columns[next_column_index]
             df.loc[mask, next_column_name] = en_text
     df.to_csv(csv_output_path, index=False)
-
-print(fix_common_mistakes({'key':'i Kokohaku will'}))

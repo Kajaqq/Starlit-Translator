@@ -1,18 +1,23 @@
 import csv
+import sys
+from enum import Enum
 from typing import Dict, Optional
 
 import tools
 
 
 """
-This file is a cursed abomination that I made with AI help at 2AM.
-It basically loads characters width from a given file, and checks the width of the string from csv. 
+This file characters width from a csv generated from font_tool.py, and checks the width of the string from csv. 
 Credits for this approach go to @faraplay at the IM@S Translation Discord
 I've only rewritten their Sheets formula to a python script for this project.
-What matters is that it works.
 """
 
-def load_char_widths(charwidths_csv: str = "charwidths.csv") -> Optional[Dict[int, float]]:
+class OVERFLOW_THRESHOLDS(Enum):
+    CRITICAL = 50
+    RED = 27.959
+    YELLOW = 27.6
+
+def load_char_widths(charwidths_csv: str = "charwidths2.csv") -> Optional[Dict[int, float]]:
     """
     Loads character widths from the specified CSV file.
     """
@@ -56,11 +61,11 @@ def analyze_line_widths_from_csv(csv_file: str, char_widths: Dict[int, float]) -
                         char_code = ord(char)
                         line_width += char_widths.get(char_code,0)
 
-                    if line_width > 50:
+                    if line_width > OVERFLOW_THRESHOLDS.CRITICAL.value:
                         critical_count += 1
-                    if line_width >= 27.959:
+                    elif line_width >= OVERFLOW_THRESHOLDS.RED.value:
                         red_count += 1
-                    elif line_width >= 27.6:
+                    elif OVERFLOW_THRESHOLDS.YELLOW.value <= line_width >= OVERFLOW_THRESHOLDS.RED.value:
                         yellow_count += 1
                     else:
                         green_count += 1
@@ -81,7 +86,7 @@ def analyze_line_widths_from_csv(csv_file: str, char_widths: Dict[int, float]) -
         return None
 
 
-def check_width_file(csv_files):
+def check_widths(csv_files):
     char_widths_data = load_char_widths()
     csv_list = tools.glob_csv_files(csv_files)
     width_list = []  # Store results in a list
@@ -92,7 +97,7 @@ def check_width_file(csv_files):
     width_list = sorted(width_list, key=lambda item: item['overflow_count'], reverse=True)
     return width_list
 
-def check_width_line(lines):
+def check_line_width(lines):
     char_widths = load_char_widths()
     line_width_list = []
     lines = lines.splitlines()
@@ -105,7 +110,8 @@ def check_width_line(lines):
     return line_width_list
 
 if __name__ == "__main__":
-    width_list = check_width_file('sample\\')
+    check_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample'
+    width_list = check_widths(check_dir)
     sum_all = 0
     overflow_all = 0
     for result in width_list:
@@ -114,13 +120,13 @@ if __name__ == "__main__":
             overflow_all += result['overflow_count']
             total_lines = result['sum_all']
             overflow_percentage = (result['overflow_count'] / total_lines) * 100 if total_lines > 0 else 0
-            print(f"{result['filename']} : {overflow_percentage:.2f}%")
+            # print(f"{result['filename']} : {overflow_percentage:.2f}%")
             print('=' * 24)
             print(f'File: {result["filename"]}')
             print(f'Critical count: {result["critical_count"]}')
-            # print(f"Overflow possible in: {overflow_percentage:.2f}% lines")
-            # print(f"Red count: {result['red_count']}")
-            # print(f"Yellow count: {result['yellow_count']}")
+            print(f"Red count: {result['red_count']}")
+            print(f"Yellow count: {result['yellow_count']}")
+            print(f"Overflow possible in: {overflow_percentage:.2f}% lines")
     overflow_overall_percent = (overflow_all / sum_all) * 100 if sum_all > 0 else 0
     print('=' * 48)
     print('OVERALL STATISTICS:')

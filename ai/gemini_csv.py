@@ -3,6 +3,7 @@ from time import perf_counter as timer
 from time import sleep
 
 
+
 class API_FINISH_REASONS(Enum):
     FINISH_REASON_UNSPECIFIED = 0
     STOP = 1
@@ -57,12 +58,12 @@ def translate_text(data_dict, model, lines_per_chunk, token_count):
         chunk_text = ""
         for source, translated in chunk_lines:
             chunk_text += f"source: {source}\ntranslatedstr: {translated}\n---\n"
-        prompt_linecheck = f"""       Your translation has been finished.
+        prompt = f"""       Your translation has been finished.
                             Unfortunately the game has a strict line length requirement.
                             Check the length of the lines according to these instructions:
                             - There can only be two lines of text, each of maximum 45 characters length.
                             - If the translated text has more than 45 characters on one line, split it naturally into a second line. 
-                            - If after spliting one of the lines still has more than 45 characters, reword it to stay in the same style and character.
+                            - If after splitting one of the lines still has more than 45 characters, reword it to stay in the same style and character.
                             - Include whitespace in your calculations
                             Do not output in json.
                             Keep '<img id=""emoji/>' tags
@@ -133,7 +134,7 @@ I received them as a gift from the fan club.
 
                             Text to check:
                             {chunk_text}"""
-        prompt = f"""Translate the 'source' text from Japanese to English and put it in 'translatedstr'.
+        prompt_translate = f"""Translate the 'source' text from Japanese to English and put it in 'translatedstr'.
                             If 'translatedstr' already has text, keep it as is.
                             Do not use Markdown.
                             Do not output in json

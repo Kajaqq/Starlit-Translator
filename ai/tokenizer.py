@@ -1,6 +1,6 @@
 import math
 
-from vertexai.preview import tokenization
+from vertexai.preview.tokenization import get_tokenizer_for_model
 
 from tools import dict_to_str, dict_to_list
 
@@ -24,7 +24,7 @@ def count_tokens(text, model="gemini-1.5-pro-002"):
     if type(text) == dict:
         text = dict_to_str(text)
     model_name = model
-    tokenizer = tokenization.get_tokenizer_for_model(model_name)
+    tokenizer = get_tokenizer_for_model(model_name)
     contents = text
     result = tokenizer.count_tokens(contents)
     total_tokens = result.total_tokens

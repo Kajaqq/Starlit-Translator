@@ -2,7 +2,7 @@ import json
 
 """
 This file contains the system instructions for the model to follow.
-It's probably the most important thing to ensure quality translations.
+It's the most important thing to ensure quality translations.
 That's why it's recommended to change them for ones made specific for your domain.
 
 The best way to do so is to write some guidelines in plain text and ask Gemini to 
@@ -40,8 +40,9 @@ translation_instructions = """
     "Example 3 (Mary Skelter): Maintain consistency across the board (e.g., 'Bread Portal' should not be translated as 'Breadcrumbs' in some places while retaining the correct translation elsewhere)."
   ],
   "character_translation_guide": {
-    "third_person_references": "Many characters such as  refer to themselves in the third person. Do not translate this in a way that makes them sound unintelligent.",
-    "kirari_voice": "Maintain her cutesy mannerisms, including sound representations, cat puns, and slogans like 'Happy Happy,' adapting them to English in a way that feels natural."
+    "third_person_references": "Many characters refer to themselves in the third person. Do not translate this in a way that makes them sound unintelligent.",
+    "kirari_voice": "Maintain her cutesy mannerisms, including sound representations, cat puns, and slogans like 'Happy Happy,' adapting them to English in a way that feels natural.",
+    "kaede_puns": "Maintain her way of speaking, pay special attention to her puns adapting them to English in a way that feels natural."
   },
   "llm_friendly_summary": {
     "task": "Translate Japanese text for a Japanese Idol industry video game.",
@@ -53,7 +54,7 @@ translation_instructions = """
       "Be consistent with character mannerisms and terms.",
       "Avoid inconsistent translation of similar terms."
     ],
-    "character_focus": "Pay special attention to Kirari's cutesy mannerisms and avoid making characters sound unintelligent when they refer to themselves in the third person.",
+    "character_focus": "Pay special attention to Kirari's cutesy mannerisms and Kaede's puns, avoid making characters sound unintelligent when they refer to themselves in the third person",
     "output": "Provide a natural, grammatically correct, easy-to-read translation."
   }
 }

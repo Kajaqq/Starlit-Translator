@@ -1,13 +1,15 @@
 import os
+import sys
+
 import google.generativeai as genai
 import csv_processing
-import line_check
+import overflow_check
 import prompt_gen
 import tokenizer
 import tools
 from gemini_csv import translate_text
 from keys_to_the_castle import api_key
-
+from tools import get_file_overflow
 
 """
 This is a special version of main.py dedicated to minimizing the problem of text overflowing.
@@ -44,7 +46,7 @@ model = genai.GenerativeModel(
 
 
 def check_width_line(lines):
-    char_widths = line_check.load_char_widths()
+    char_widths = overflow_check.load_char_widths()
     line_width_list = []
     lines_split = []
     for line in lines:
@@ -56,17 +58,6 @@ def check_width_line(lines):
             line_width += char_widths.get(char_code, 0)
         line_width_list.append(line_width)
     return line_width_list
-
-
-def get_file_overflow(csv_file):
-    overflow_percentage = 0
-    char_widths_data = line_check.load_char_widths()
-    result = line_check.analyze_line_widths_from_csv(csv_file, char_widths_data)
-    if result['overflow_count']:
-        total_lines = result['sum_all']
-        overflow_percentage = (result['overflow_count'] / total_lines) * 100 if total_lines > 0 else 0
-    return overflow_percentage
-
 
 def process_csv(files, pass_id=3, passes=3):
     files = tools.glob_and_exclude(files, None, None) if type(files) is not list else files
@@ -89,11 +80,14 @@ def process_csv(files, pass_id=3, passes=3):
             translated_file = translate_text(file_dict, model, file_chunk_size, file_tokens)
             output_path = f'{file}_fix{p}{extension}' if p ==1 else f'{file[:-1]}{p}{extension}'
             csv_processing.postprocess_dict_to_csv(filename, output_path, file_dict, translated_file)
-            filename = output_path
             overflow_state_after = get_file_overflow(output_path)
             if overflow_state_after >= overflow_state:
                 os.remove(output_path)
+            else:
+                filename = output_path
             print(f"File overflow state after: {overflow_state_after:.2f}%")
 
 
-process_csv('sample')
+if __name__ == '__main__':
+    fix_dir = sys.argv[1] if len(sys.argv) > 1 else 'pakchunk99-EngPatch-Rev3'
+    process_csv(fix_dir)
