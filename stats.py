@@ -2,7 +2,7 @@ import csv
 import sys
 
 import tools
-from ai.keys_to_the_castle import translated_row_name
+from ai.keys_to_the_castle import origin_row_name, translated_row_name
 
 def count_translated_str(csv_file_path: str) -> tuple[int, int, int]:
     filled_count = 0
@@ -12,11 +12,13 @@ def count_translated_str(csv_file_path: str) -> tuple[int, int, int]:
         reader = csv.DictReader(file)
         for row in reader:
             translated_row = row[translated_row_name]
+            origin_row = row[origin_row_name]
             if translated_row:
                 filled_count += 1
-            else:
+            elif origin_row and not translated_row:
                 empty_count += 1
-
+            elif not origin_row and not translated_row:
+                filled_count += 1
     return filled_count, empty_count, total
 
 
@@ -64,5 +66,5 @@ def main(fix_dict):
 
 
 if __name__ == "__main__":
-    fix_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample'
+    fix_dir = sys.argv[1] if len(sys.argv) > 1 else 'pevent'
     main(check_translation_percentage(fix_dir))

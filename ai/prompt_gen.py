@@ -1,5 +1,5 @@
 import json
-
+from keys_to_the_castle import term_dictionary
 """
 This file contains the system instructions for the model to follow.
 It's the most important thing to ensure quality translations.
@@ -47,7 +47,7 @@ translation_instructions = """
   "llm_friendly_summary": {
     "task": "Translate Japanese text for a Japanese Idol industry video game.",
     "priority": "Accuracy, context, consistency.",
-    "keywords_to_preserve": ["LIVE", "COMMU", "romaji (song titles/lyrics)"],
+    "keywords_to_preserve": ["LIVE", "COMMU", "romaji (song titles/lyrics)", "terms from dictionary"],
     "key_actions": [
       "Maintain original sentence structure.",
       "Preserve honorifics and jokes, with clarifications where possible.",
@@ -60,13 +60,34 @@ translation_instructions = """
 }
 """
 
-parsed_instructions = json.loads(translation_instructions)
+def inject_term_dictionary(instructions_template, term_dictionary):
+    """Injects a term dictionary into the translation instructions JSON.
 
+    Args:
+        instructions_template (str): The JSON string template.
+        term_dictionary (list): A list of dictionaries, where each dictionary
+                                represents a term-translation pair.
+
+    Returns:
+        str: The JSON string with the term dictionary injected.
+    """
+    instructions_dict = json.loads(instructions_template)
+
+    # Access the nested term_preservation dictionary
+    term_preservation = instructions_dict["game_translation_instructions"]["term_preservation"]
+
+    # Add the term_dictionary
+    term_preservation["term_dictionary"] = term_dictionary
+
+    return json.dumps(instructions_dict, indent=2)
+
+parsed_instructions = inject_term_dictionary(translation_instructions,term_dictionary)
 
 def generate_instructions():
     system_instructions = f"""
       You are a highly skilled professional Japanese-English translator. Your task is to translate the following Japanese text into English,
       while adhering to the following guidelines:
-      {json.dumps(parsed_instructions, indent=2)}
+      {parsed_instructions}
       """
     return system_instructions
+

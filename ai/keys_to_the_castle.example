@@ -3,3 +3,4 @@ api_key = 'YOUR_API_KEY_HERE'
 origin_row_name = 'source'
 translated_row_name = 'translatedstr'
 
+term_dictionary = []
