@@ -3,5 +3,6 @@ api_key = 'YOUR_API_KEY_HERE'
 origin_row_name = 'source'
 translated_row_name = 'translatedstr'
 trans_work_dir = 'sample'
+max_line_length = 70
 
 term_dictionary = []
