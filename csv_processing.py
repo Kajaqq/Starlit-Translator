@@ -33,24 +33,24 @@ def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
     data_dict = {}
     if pass_nr == 3:
         # char_widths = load_char_widths()
-    with open(csv_file_path, 'r', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            source = row[origin_row_name]
-            translated_str = row[translated_row_name] if translated_row_name in row.keys() else row['target']
-            if pass_nr == 1:
-                if translated_str:
-                    data_dict[source] = translated_str
-                else:
-                    data_dict[source] = ''
-            elif pass_nr == 2:
-                if not translated_str:
-                    data_dict[source] = ''
-            elif pass_nr == 3:
-                line_nr_check, line_len = handle_case_3(translated_str)
-                length_check = [ele >= max_line_length+1 for ele in line_len]
-                if True in length_check or True in line_nr_check:
-                    data_dict[source] = translated_str.replace('\n',' ')
+        with open(csv_file_path, 'r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                source = row[origin_row_name]
+                translated_str = row[translated_row_name] if translated_row_name in row.keys() else row['target']
+                if pass_nr == 1:
+                    if translated_str:
+                        data_dict[source] = translated_str
+                    else:
+                        data_dict[source] = ''
+                elif pass_nr == 2:
+                    if not translated_str:
+                        data_dict[source] = ''
+                elif pass_nr == 3:
+                    line_nr_check, line_len = handle_case_3(translated_str)
+                    length_check = [ele >= max_line_length+1 for ele in line_len]
+                    if True in length_check or True in line_nr_check:
+                        data_dict[source] = translated_str.replace('\n',' ')
     return data_dict
 
 def handle_case_3(text_to_check, char_widths=None):
