@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Dict, Optional
 
 import tools
-
+from ai.keys_to_the_castle import trans_work_dir
 
 """
 This file characters width from a csv generated from font_tool.py, and checks the width of the string from csv. 
@@ -110,7 +110,7 @@ def check_line_width(lines):
     return line_width_list
 
 if __name__ == "__main__":
-    check_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample'
+    check_dir = sys.argv[1] if len(sys.argv) > 1 else trans_work_dir
     width_list = check_widths(check_dir)
     sum_all = 0
     overflow_all = 0

@@ -52,5 +52,6 @@ def manual_translate(files_list):
 
 
 if __name__ == '__main__':
-    file_dir = sys.argv[1] if len(sys.argv) > 1 else 'sample/sample1.csv'
+    trans_file = 'sample/sample1.csv'
+    file_dir = sys.argv[1] if len(sys.argv) > 1 else trans_file
     manual_translate([file_dir])

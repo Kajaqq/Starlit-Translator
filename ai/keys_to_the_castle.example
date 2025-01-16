@@ -2,5 +2,6 @@ api_key = 'YOUR_API_KEY_HERE'
 
 origin_row_name = 'source'
 translated_row_name = 'translatedstr'
+trans_work_dir = 'sample'
 
 term_dictionary = []
