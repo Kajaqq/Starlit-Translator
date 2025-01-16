@@ -25,7 +25,6 @@ The project files can be split into two groups.
     token_calculations.py - Allows to check chars/token for Japanese and English.
     tokenizer.py - Returns tokens for given text, estimates the time until completion.
     main.py - Utilizing all the above translates a given csv file, checks it's translation rate and saves it back.
-    gemini_line_fixer.py - Using line_check.py, tries to fix text overflow by specifically prompting the model with long lines.
     manual_fix.py - Allows for simple line-by-line translations on files with missing translations. 
     keys_to_the_castle.py - Contains the API key for Google AI Platform and csv schema.
     
@@ -34,6 +33,7 @@ The project files can be split into two groups.
     csv_processing.py - Converts the csv into a {key:value} dict, then saves a translated dict back to csv.
     font_tool.py - Generated a charwidths.csv file from a ttf font
     overflow_check.py - Checks the width of a line using charwidths.csv, returns possible text overflow percentage.
+    line_splitter.py - If a file has overflow it will try to naturally split the lines to be in the character limit.
     tools.py - Contains common functions to avoid repeating them in code.
     rename.ps1 - A Powershell script to replace old files with translated ones.
 

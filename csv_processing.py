@@ -1,11 +1,9 @@
 import csv
-
 import pandas as pd
 
-from overflow_check import load_char_widths
+# from overflow_check import load_char_widths
 
-from ai.keys_to_the_castle import origin_row_name,translated_row_name
-
+from ai.keys_to_the_castle import origin_row_name,translated_row_name, max_line_length
 from tools import merge_dicts
 
 '''
@@ -33,9 +31,8 @@ replace_dict = {
 
 def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
     data_dict = {}
-    char_widths = []
     if pass_nr == 3:
-        char_widths = load_char_widths()
+        # char_widths = load_char_widths()
     with open(csv_file_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -50,22 +47,25 @@ def preprocess_csv_to_dict(csv_file_path, pass_nr=1):
                 if not translated_str:
                     data_dict[source] = ''
             elif pass_nr == 3:
-                line_nr_check, line_len = handle_case_3(translated_str, char_widths)
-                length_check = True in (ele >= 27.6 for ele in line_len)
-                if length_check or line_nr_check:
-                    data_dict[source] = translated_str
+                line_nr_check, line_len = handle_case_3(translated_str)
+                length_check = [ele >= max_line_length+1 for ele in line_len]
+                if True in length_check or True in line_nr_check:
+                    data_dict[source] = translated_str.replace('\n',' ')
     return data_dict
 
-def handle_case_3(text_to_check, char_widths):
+def handle_case_3(text_to_check, char_widths=None):
     lines = text_to_check.splitlines()
-    line_nr_check = True if len(lines) > 2 else False
+    line_nr_check = [len(lines) > 3]
     line_width_list = []
     for line in lines:
-        line_width = 0
-        for char in line:
-            char_code = ord(char)
-            line_width += char_widths.get(char_code, 0)
-        line_width_list.append(line_width)
+        line_width_list.append(len(line))
+        # You can use the width based on font width here
+        #line_width = 0
+        # for char in line:
+        #
+        #     # char_code = ord(char)
+        #     # line_width += char_widths.get(char_code, 0)
+        # line_width_list.append(line_width)
     return line_nr_check, line_width_list
 
 def fix_common_mistakes(en_dict: dict, replace_list=None):

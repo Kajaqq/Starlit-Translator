@@ -1,9 +1,11 @@
 import csv
 import glob
 import os
+from srt_equalizer import srt_equalizer
 
 import overflow_check
 import stats
+from ai.keys_to_the_castle import max_line_length
 
 def len_csv(csv_file_path):
     with open(csv_file_path, 'r', encoding='utf-8') as file:
@@ -73,3 +75,15 @@ def glob_and_exclude(directory, exclusion_percentage=100, exclusion_name='_eng.c
 
         filtered_files = [f for f in all_csv_files if f not in exclude_files]
         return sorted(filtered_files)
+
+def split_line(line, target_chars: int = max_line_length):
+    text_chunks = srt_equalizer.split_greedy(line, target_chars)
+    line_split = '\n'.join(text_chunks)
+    return line_split
+
+def split_dict(old_dict):
+    new_dict = {}
+    for key, value in old_dict.items():
+        new_dict[key] = split_line(value)
+    return new_dict
+

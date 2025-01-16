@@ -58,90 +58,12 @@ def translate_text(data_dict, model, lines_per_chunk, token_count):
         chunk_text = ""
         for source, translated in chunk_lines:
             chunk_text += f"source: {source}\ntranslatedstr: {translated}\n---\n"
-        prompt = f"""       Your translation has been finished.
-                            Unfortunately the game has a strict line length requirement.
-                            Check the length of the lines according to these instructions:
-                            - There can only be two lines of text, each of maximum 45 characters length.
-                            - If the translated text has more than 45 characters on one line, split it naturally into a second line. 
-                            - If after splitting one of the lines still has more than 45 characters, reword it to stay in the same style and character.
-                            - Include whitespace in your calculations
-                            Do not output in json.
-                            Keep '<img id=""emoji/>' tags
-                            Do not use markdown.
-                            Output only the final result.
-
-                            **Examples**:
-
-                            User:
-
-                            source: 海外研修に行って、また一段と腕を磨いたんじゃ
-ないですか？　ぜひ、話を聞かせてください！
-                            translatedstr: You went on overseas training, so you must have improved your skills even more, right? Please, tell me all about it!
-
-                            ---
-
-                            source: 律子は俺がいない間、どんな活動をしていたんだ？
-改めて教えてくれないか
-                            translatedstr: What kind of activities were you doing while I was gone, Ritsuko?
-Could you tell me again?
-
-                            ---
-
-                            source: どういたしまして。ちなみにその隣にあるのは、
-ここ最近の活動資料です
-                            translatedstr: You're welcome. By the way, next to that are
-the activity documents from the past few days.
-
-                            ---
-
-                            source: そうでしょう？
-かけるのがもったいないですよね
-                            translatedstr: Those are my glasses. I received them as a gift from the fan club.
-
-                            ---
-
-
-                            Response:
-
-                            source: 海外研修に行って、また一段と腕を磨いたんじゃ
-ないですか？　ぜひ、話を聞かせてください！
-                            translatedstr: You were overseas for training, right? 
-What did you learn? I want to hear all about it!
-
-                            ---
-
-                            source: 律子は俺がいない間、どんな活動をしていたんだ？
-改めて教えてくれないか
-                            translatedstr: What were you doing while I was gone, Ritsuko?
-Could you tell me again?
-
-                            ---
-
-                            source: どういたしまして。ちなみにその隣にあるのは、
-ここ最近の活動資料です
-                            translatedstr: You're welcome. By the way, next to that are
-the activity documents from the past few days.
-
-                            ---
-
-                            source: そうでしょう？
-かけるのがもったいないですよね
-                            translatedstr: Those are my glasses. 
-I received them as a gift from the fan club.
-
-                            ---
-
-
-                            Text to check:
-                            {chunk_text}"""
-        prompt_translate = f"""Translate the 'source' text from Japanese to English and put it in 'translatedstr'.
+        prompt = f"""Translate the 'source' text from Japanese to English and put it in 'translatedstr'.
                             If 'translatedstr' already has text, keep it as is.
                             Do not use Markdown.
                             Do not output in json
                             Output in the same way as the input.
-                            Keep ' <img id=""emoji_x/> ' tags
                             Try to split the lines in text similar to 'source'.
-
                             **Examples**:
 
                             User:
