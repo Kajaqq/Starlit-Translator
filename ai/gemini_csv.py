@@ -1,16 +1,7 @@
 from enum import Enum
 from time import perf_counter as timer
 from time import sleep
-
-
-
-class API_FINISH_REASONS(Enum):
-    FINISH_REASON_UNSPECIFIED = 0
-    STOP = 1
-    MAX_TOKENS = 2
-    SAFETY = 3
-    RECITATION = 4
-    OTHER = 5
+from google.genai.types import FinishReason
 
 
 """
@@ -19,26 +10,35 @@ It sends the requests, parses them and adds them back to an updated dict.
 There's a lot of options to customize here, with the most important being the prompt.
 It's hardcoded here instead of dynamically read from config,
 as everytime I tried to move it somewhere the model started speaking in tongues.
-There are two prompt templates here.
-One for the translation 
-And one for rephrasing sentences that exceed given line length.
 """
 
-def translate_text(data_dict, model, lines_per_chunk, token_count):
+def send_request(client, model, config, prompt):
+    return client.models.generate_content(
+        model=model,
+        config=config,
+
+    )
+
+def translate_text(data_dict, client, model_data, lines_per_chunk, token_count, hints=None):
     """
     Translates a dictionary using the Gemini API, chunking by the number of lines.
 
     Args:
-        data_dict: The dictionary to be translated (format: {'source': 'translatedstr'}).
-        model: Gemini API model object.
-        lines_per_chunk: The number of lines per chunk.
+        :param client: The Gemini API client object.
+        :param data_dict: The dictionary to be translated (format: {'source': 'translatedstr'}).
+        :param model_data: model_data['model_name, generation_config']
+        :param lines_per_chunk: The number of lines per chunk.
+        :param token_count: count of all tokens in the data_dict
 
     Returns:
         A dictionary with the translated text (format: {'source': 'translatedstr'}).
+
+
     """
     elapsed_time = 0
     translated_dict = {}
-    #  translation_hints = hints or {}
+    # translation_hints = hints or {}
+    model_name, generation_config = model_data
 
     lines = list(data_dict.items())  # Convert dict to list of (key, value) pairs
     total_lines = len(lines)
@@ -137,17 +137,16 @@ def translate_text(data_dict, model, lines_per_chunk, token_count):
         max_retries = 5
         retry_delay = 5  # Initial retry delay in seconds
 
-        while (finish_reason is None or finish_reason != API_FINISH_REASONS.STOP.value) and retries < max_retries:
+        while (finish_reason is None or finish_reason != FinishReason.STOP.value) and retries < max_retries:
             try:
-                if finish_reason == API_FINISH_REASONS.MAX_TOKENS.value:
-                    response = model.generate_content(prompt + full_response_text)
+                if finish_reason == FinishReason.MAX_TOKENS.value:
+                    response = client.models.generate_content(model=model_name, config=generation_config, contents=prompt + full_response_text)
                 else:
-                    response = model.generate_content(prompt)
+                    response = client.models.generate_content(model=model_name, config=generation_config, contents=prompt)
 
                 if response.text:
-                    # print(f"Response from Gemini API: {response.text}")
-                    full_response_text += response.candidates[0].content.parts[
-                        1].text if 'thinking' in model.model_name else response.text
+                    print(f"Response from Gemini API: {response}")
+                    full_response_text += response.text
                 else:
                     print(f"Warning: No text returned for chunk starting at line {start_index}")
 
@@ -155,19 +154,19 @@ def translate_text(data_dict, model, lines_per_chunk, token_count):
                 finish_reason = None
                 for candidate in response.candidates:
                     if candidate.finish_reason:
-                        finish_reason = int(candidate.finish_reason)
+                        finish_reason = candidate.finish_reason.value
                         break
 
-                if finish_reason == API_FINISH_REASONS.MAX_TOKENS.value:
+                if finish_reason == FinishReason.MAX_TOKENS.value:
                     print(
                         f"MAX_TOKENS encountered, continuing generation for chunk starting at line {start_index}"
                     )
-                elif finish_reason == API_FINISH_REASONS.STOP.value:
+                elif finish_reason == FinishReason.STOP.value:
                     print("STOP encountered, finishing chunk.")
                     break
                 elif finish_reason:
                     print(
-                        f"Other finish reason encountered: {API_FINISH_REASONS(finish_reason).name}, continuing generation for chunk starting at line {start_index}"
+                        f"Other finish reason encountered: {finish_reason}, continuing generation for chunk starting at line {start_index}"
                     )
 
             except Exception as e:

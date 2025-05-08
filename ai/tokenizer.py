@@ -1,18 +1,13 @@
 import math
 
-from vertexai.preview.tokenization import get_tokenizer_for_model
-
 from tools import dict_to_str, dict_to_list
-
-
 """
-This file handles the token calculations, 
-1.5-pro tokens generally correspond to 2.0 tokens.
+This file handles the token calculations
 """
 
 def estimate_time(tokens):
     average_tps = 90  # It's hard to give an exact number here as the speed depends on the load of the model,
-                      # 2.0-flash-preview can send up to 160t/s but after the roll-out for Gemini Advanced
+                      # 2.0-flash can send up to 160t/s but after the roll-out for Gemini Advanced
                       # it slowed down to about 80-90 for a few days to get back to 130 later
                       # therefore this number is the worst-case scenario
     time_in_seconds = int(tokens) / average_tps
@@ -20,15 +15,13 @@ def estimate_time(tokens):
     estimate = f'a maximum of {time_in_seconds:.2f} second(s), or about {time_in_minutes:.2f} minute(s)'
     return estimate
 
-def count_tokens(text, model="gemini-1.5-pro-002"):
+def count_tokens(text, client, model="gemini-2.0-flash"):
     if type(text) == dict:
         text = dict_to_str(text)
-    model_name = model
-    tokenizer = get_tokenizer_for_model(model_name)
-    contents = text
-    result = tokenizer.count_tokens(contents)
-    total_tokens = result.total_tokens
-    return total_tokens
+    total_tokens = client.models.count_tokens(
+        model=model, contents=text
+    )
+    return total_tokens.total_tokens
 
 
 def get_jp_tokens(dict_data: dict):

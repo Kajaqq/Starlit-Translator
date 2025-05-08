@@ -1,5 +1,5 @@
 import json
-from keys_to_the_castle import term_dictionary
+from ai.keys_to_the_castle import term_dictionary
 """
 This file contains the system instructions for the model to follow.
 It's the most important thing to ensure quality translations.
