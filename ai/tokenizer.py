@@ -24,15 +24,15 @@ def count_tokens(text, client, model="gemini-2.0-flash"):
     return total_tokens.total_tokens
 
 
-def get_jp_tokens(dict_data: dict):
+def get_jp_tokens(client, dict_data: dict):
     dict_list = dict_to_list(dict_data)
     total_tokens = 0
     for line in dict_list:
-        total_tokens += count_tokens(line)
+        total_tokens += count_tokens(text=line, client=client)
     return total_tokens / len(dict_list)
 
 
-def calculate_chunk_size(dict_data: dict, api_limit=8192):
+def calculate_chunk_size(client, dict_data: dict, api_limit=8192):
     """
     Calculates the optimal chunk size (in characters) for API calls.
     We assume that the English translation is 10% more tokens than the JP original(see token_calculations.py)
@@ -46,7 +46,7 @@ def calculate_chunk_size(dict_data: dict, api_limit=8192):
 
     """
 
-    avg_jp_tokens = get_jp_tokens(dict_data)
+    avg_jp_tokens = get_jp_tokens(client=client, dict_data=dict_data)
 
     # Calculate the average length of a row *before* the API response
 
