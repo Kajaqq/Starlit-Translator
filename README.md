@@ -12,7 +12,7 @@ The use case shown here is translating a Japanese game that has never been local
 1. Rename keys_to_the_castle.example to keys_to_the_castle.py and enter your [Google AI Studio API key](https://aistudio.google.com/apikey)
 2. Install dependencies with 
 ```bash
-   pip install -r requirements.txt
+   uv sync
 ```
 3. Run main.py, it will start translating the sample files.
 

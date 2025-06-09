@@ -1,0 +1,10 @@
+[project]
+name = "StarlitTranslator"
+version = "1.1.0"
+description = "Translates csv files from an idol game."
+requires-python = ">=3.12"
+dependencies = [
+    "google-genai",
+    "pandas",
+    "srt-equalizer",
+]
