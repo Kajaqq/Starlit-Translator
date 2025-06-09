@@ -12,13 +12,6 @@ It's hardcoded here instead of dynamically read from config,
 as everytime I tried to move it somewhere the model started speaking in tongues.
 """
 
-def send_request(client, model, config, prompt):
-    return client.models.generate_content(
-        model=model,
-        config=config,
-
-    )
-
 def translate_text(data_dict, client, model_data, lines_per_chunk, token_count, hints=None):
     """
     Translates a dictionary using the Gemini API, chunking by the number of lines.
